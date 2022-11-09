@@ -24,6 +24,7 @@ dbConnect();
 
 
 const servicesCollection = client.db("MyPhotography").collection("services");
+const reviewsCollection = client.db("MyPhotography").collection("reviews");
 
 
 
@@ -58,11 +59,11 @@ app.get('/service/:id', async (req, res) => {
     try {
         const id = req.params;
         const query = { _id: ObjectId(id) };
-        const anime = await servicesCollection.findOne(query);
+        const service = await servicesCollection.findOne(query);
         res.send({
             success: true,
             message: 'Here is the service you wanted',
-            data: anime
+            data: service
         });
 
 
@@ -97,6 +98,28 @@ app.get('/services', async (req, res) => {
     }
 })
 
+app.get('/review/:id', async (req, res) => {
+    try {
+        const id = req.params;
+        const query = { serviceId: id };
+        const reviews = await reviewsCollection.find(query);
+        res.send({
+            success: true,
+            message: 'Here is the service you wanted',
+            data: reviews
+        });
+
+
+    } catch (error) {
+
+        console.log(error.name, error.message);
+        res.send({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
 
 app.post('/addservice', async (req, res) => {
     try {
@@ -117,9 +140,27 @@ app.post('/addservice', async (req, res) => {
     } catch (error) {
 
     }
+})
 
+app.post('/addreview', async (req, res) => {
+    try {
+        const review = req.body;
+        const result = await reviewsCollection.insertOne(review);
+        if (result.insertedId) {
+            res.send({
+                success: true,
+                message: 'Successfully added the Service'
+            })
+        }
+        else {
+            res.send({
+                success: false,
+                message: 'Cannot add the Service'
+            })
+        }
+    } catch (error) {
 
-
+    }
 })
 
 
