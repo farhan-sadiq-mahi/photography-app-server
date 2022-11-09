@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
 require('dotenv').config();
@@ -50,6 +50,29 @@ app.get('/homeservices', async (req, res) => {
             message: error.message
         })
 
+    }
+})
+
+
+app.get('/service/:id', async (req, res) => {
+    try {
+        const id = req.params;
+        const query = { _id: ObjectId(id) };
+        const anime = await servicesCollection.findOne(query);
+        res.send({
+            success: true,
+            message: 'Here is the service you wanted',
+            data: anime
+        });
+
+
+    } catch (error) {
+
+        console.log(error.name, error.message);
+        res.send({
+            success: false,
+            message: error.message
+        })
     }
 })
 
