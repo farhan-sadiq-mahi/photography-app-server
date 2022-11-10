@@ -146,12 +146,34 @@ app.get('/review/:id', async (req, res) => {
     }
 })
 
+app.get('/updatereview/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const query = { _id: ObjectId(id) };
+        const cursor = reviewsCollection.find(query);
+        const review = await cursor.toArray();
+        res.send({
+            success: true,
+            message: 'Here is the reviews you wanted',
+            data: review
+        });
+
+
+    } catch (error) {
+
+        console.log(error.name, error.message);
+        res.send({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
 
 
 
 app.get('/myreviews', verifyJWT, async (req, res) => {
     const decoded = req.decoded;
-    console.log(decoded);
     if (decoded.email !== req.query.email) {
         res.status(403).send({
             success: false,
@@ -227,6 +249,35 @@ app.post('/addreview', async (req, res) => {
     }
 })
 
+app.put('/update/:id', async (req, res) => {
+    try {
+        const { id } = req.params;;
+        const filter = { _id: ObjectId(id) }
+        const NewReview = req.body;
+        console.log(NewReview);
+        const options = { upsert: true };
+        const updatedReview = {
+            $set: {
+                review: NewReview.review,
+                rating: NewReview.rating
+            }
+
+        }
+        const result = await reviewsCollection.updateOne(filter, updatedReview, options);
+        res.send({
+            success: true,
+            message: 'successfully updated the review',
+            data: result
+        });
+    } catch (error) {
+        console.log(error.name, error.message);
+        res.send({
+            success: false,
+            message: error.message
+        })
+
+    }
+})
 app.delete('/delete/:id', async (req, res) => {
     try {
         const { id } = req.params;
